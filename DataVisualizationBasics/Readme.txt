@@ -1,0 +1,1 @@
+I enrolled into one of the courses on Coursera.com called Data Visualization with Python part of Data Science Specialization by IBM. I'm documenting it's assignments and practice jupyter notebooks here.
