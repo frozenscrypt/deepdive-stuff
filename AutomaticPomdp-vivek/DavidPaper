@@ -1,0 +1,221 @@
+3.1  Actions,A
+A is  the  set  of  actions  available  to  the  agent,  so  it  cor-
+responds to the possible decisions that an individual faces
+in the scenario to be modeled.  The behavior of interest in
+the survey is whether and when residents would leave Seat-
+tle, and if so, whether and when they would return.  Both
+options become possible actions for our agent:
+
+
+To structure the decision problem, we divide the person’s
+decisions into two phases, “where” and “how”. In the “where”
+phase, the person chooses between “LeaveSeattle” and “Stay”
+if in Seattle and between “ReturnSeattle” and “Stay” if not.
+In  the “how” phase,  the  person  chooses  among  the  16  be-
+havioral options if in Seattle and between “TempWork” and
+“PermanentMove” if not.
+
+3.2  States, S
+The  state  space, S represents  the  key  features  of  the
+agent’s  operating  environment,  both  observable  and  hid-
+den,  both  external  and  internal.   These  features  can  cap-
+ture both objective facts and subjective perceptions about
+a  person’s  decision-making  context.   We  use  the  individ-
+ual  survey  questions  to  constitue  a  factored  state  space,
+S =S0×S1×···×Sn[1].  Demographic responses become
+state features, where it is safe to assume that the person has
+knowledge of the true values.  The questions that begin “I
+believe” become state features, where the person may have
+only uncertain beliefs.  There are 13 such features, of which
+the following are a representative sample:
+
+We define each such feature as a binary variable, valued as
+1 if the statement is true, and 0 if it is false.  We could treat
+these features as more fine-grained (e.g., different levels of
+risk).  However, the survey asks the respondent’s to express
+a degree of agreement with the statement, so we represent
+that degree within the beliefs (see Section 3.5), rather than
+within the true state of the world.  There is no fundamental
+obstacle to enriching the domains of these state features, but
+in this case, there is little incentive to do so, as we do not
+have more fine-grained information from the respondents.
+We  also  need  state  features  to  represent  the  degree  to
+which  the  person’s  objectives  are  satisfied.   We  ignore  the
+miscellaneous “Other” objective, leaving us with 4 new state
+features.
+
+
+We define these features as binary variables as well, valued
+as  1  if  the  objective  is  satisfied,  and  0  otherwise.   This  is
+obviously  a  gross  oversimplification,  in  that “PersonalSur-
+vival” cannot distinguish between dying from anthrax and
+becoming infected with anthrax but surviving.  We choose
+to start with the simplest possible model here, but we can
+always add additional levels to the domains of these state
+features later without changing our methodology.
+As  described  in  Section  3.1,  certain  choices  depend  on
+the person’s location and on the current phase of decision-
+making.  We therefore introduce additional state features to
+keep track of these conditions:
+
+These two features potentially eliminate certain actions from
+consideration. For example, the action “LeaveSeattle” is con-
+sidered only when “location” is “Seattle”.  Likewise, “Perma-
+nentMove” is considered only when “location” is “beyond”.
+
+
+
+3.3  Reward, R
+
+The agent’s reward, R, represents the objective function
+that it is seeking to maximize, so it makes a natural mech-
+anism  for  representing  people’s  preferences.   As  described
+in Section 3.2, a subset of the state features in S
+represent the objectives from the survey.  We limit the reward func-
+tion to concern only this subset of state features, and specify
+it according to the priorities expressed in the respondent’s
+ranking.  In particular,  we define the reward function as a
+weighted sum of the values of the objective state features.
+The survey asks people to rank the objectives from 1 to 5,
+so we weigh each state feature by (6 − its rank) within R.
+
+This translation allows us to treat people’s ranking of the
+objectives as a direct expression of their reward function.
+The ranking allows us to identify how important the sat-
+isfaction of these objectives is to people, but it does not give
+us any information about the degree to which they believe
+them to be satisfied.  We may get indirect information about
+these beliefs from the other questions, but we make a sim-
+plifying assumption that there is no such information.  We
+instead treat the initial value of the objective state features
+as  if  everyone  had  responded  with  a  3  to  questions  about
+their belief.  This is not a critical assumption at this point,
+as it is the change in objective satisfaction that drives be-
+havior, and the starting value has less impact.
+
+
+3.4  Transition Probability, P
+
+The transition probability, P, represents the probabilistic
+effects  of  actions  on  the  state  of  the  world.   Representing
+such  effects  allows  us  to  capture  the  way  in  which  people
+can anticipate the expected outcomes of their possible de-
+cisions.  The transition probability for our non-survey state
+features (“location” and “phase”) is straightforwardly deter-
+ministic.  If the person chooses, “Stay”, then “location” does
+not change. If the person chooses “LeaveSeattle”, then “loca-
+tion” becomes “beyond”.  If the person chooses “ReturnSeat-
+tle”, then “location” becomes “Seattle”.  The transition prob-
+ability for “phase” is similarly deterministic, in that when it
+is “where”,  it  becomes “how” after  performing  the  chosen
+action, and vice versa.
+
+
+The transition probability for the other state features in
+Section  3.2  is  not  as  simple.   There  is  no  a  priori  obvious
+definition  of  the  effects  of  (for  example) “TakeAntiBiotic”
+on “RiskMe” and “PersonalSurvival”.   Likewise,  there  are
+no explicit questions about these effects in the survey that
+can inform such a definition.  Therefore, we treat the spec-
+ification  of  this  transition  probability  as  the  heart  of  the
+modeling task.
+
+
+To both constrain the potential search space and to sim-
+plify  the  elicitation  of  expert  knowledge,  we  restrict  the
+structure  of  the  transition  probability  function.   We  start
+from the standard factored POMDP’s use of Dynamic Bayes-
+ian Networks [9] and influence diagrams [6] to exploit con-
+ditional independence in modeling the effects of actions [1].
+We  can  thus  express  dependencies  among  our  states  and
+actions as links among the nodes of a dynamic influence di-
+agram [19], as in the example model visualized in Figure 1.
+The ovals on the left represent the state values at time t
+, the rectangles in the middle represent the possible action choices
+at time t, and the ovals on the right represent the state val-
+ues at time t + 1.  The colored nodes represent states and
+actions specific to the person, while the uncolored nodes rep-
+resent global states (e.g., if the government provides health
+care, it applies to every resident).  The links from “location”
+and “phase” to the action nodes indicate that the available
+choices depend on those variables.
+
+3.4.1  Action Effects
+
+The  other  links  represent  dependencies  encoded  in  this
+particular model of the person’s decision-making.  In this il-
+lustrative model, “RiskMe” is affected by the possible “how”
+actions in Seattle (e.g., “TakeAntiBiotic”).  In general,  the
+dependency expressed on the links could be an arbitrary con-
+ditional probability table across the combinations of parent
+node values.  To simplify the model specification, we instead
+specify the dependency on each link independently.
+For the links from action nodes to subsequent state fea-
+tures,  we specify a magnitude and direction of the depen-
+dency for each possible prior value of the state feature (True or False
+).  We express the magnitude and direction by -1,
+0, or 1, representing that the performance of the action has
+a  negative,  neutral,  or  positive  effect,  respectively,  on  the
+likelihood  of  the  state  feature  being True afterward.   For
+example, we can specify a value of 1 for the effect of “Cont-
+WorkSch” on “RiskMe” (whether starting at True or False)
+to represent the increased risk incurred by continuing to go
+to  work  or  school.   Likewise,  we  can  specify  a  value  of  -1
+for  the  effect  of “LeaveSeattle” on “JobFulltime” (whether
+True or False ) to represent the challenge of finding another
+full-time job after leaving Seattle.  We do not currently al-
+low these links to be contingent on other state features (e.g.,
+going to work may have less impact on the anthrax risk if
+“Decontaminated” is True).  However, this is again a trivial
+relaxation that would only change the search space, and not
+any of the methods.
+
+We translate the links from actions to a state by aggre-
+gating  the  -1  and  1  values  on  those  links.   We  first  com-
+pute the minimum and maximum possible incoming weights
+by looking at the possible combinations of actions (e.g., all
+of  the “how” actions  simultaneously)  and  counting  the  -1
+and  1  values  separately.   For  our  initial  model,  a  person
+choosing “ContWorkSch” would incur a maximum value of
+1 over “RiskMe”’s incoming links,  while a person choosing
+“ChangeRoutine”, “OutdoorPrecaution”,  and “TakeAntiBi-
+otic” would incur a minimum value of -3.  We then normal-
+ize  the  total  values  for  each  possible  action  choice  across
+this range (in this example,  [-3,1]) and map it to a Likert
+scale of 1–5.  We then translate the result into a probability
+of the state feature being True using a table of our design:
+1 → 10%, 2 → 25%, 3 → 50%, 4 → 75%, and 5 → 90%.
+
+3.4.2  Interdependency among States
+We  make  a  similar  simplifying  assumption  for  links  in-
+coming to objective nodes.  We label each link from a state
+node to an objective node with two numbers on a 1–5 scale,
+with the two values representing the conditions where  the
+parent  node  is True or False.   A  value  of  1  (5)  indicates
+that the parent node’s being True/False strongly decreases
+(increases) the likelihood of the objective node being
+True. For example, our initial model has a link from “RiskMe” to
+“PersonalSurvival”.  This link is 1 for True, indicating that
+if  there  is  a  risk  to  the  person,  then  the  survival  chances
+go down.  This link is 5 for False, indicating that survival
+chances increase if there is little to no risk.
+We fill in the conditional probability table over all of the
+incoming links at an objective node using a noisy OR. Based
+on the True/False values of the parents,  we translate the
+corresponding  link  values  into  probabilities, p i,  using  the
+same  mapping  as  in  Section  3.5.   We  then  use  a  standard
+noisy OR formula, Pr(child| parents) = 1−∏i(1−pi).  As in
+the action dependencies, we are making a strong assumption
+of independence among these effects on the objectives.  Re-
+laxing this assumption is also trivial, in that it only reduces
+the space of possible dependency definitions, and does not
+affect any of the algorithms.
+
+
+3.4.3  Initial Model
+The examples in this section are drawn from the transition
+probability function used in our initial model.  We elicited
+the links in this initial model from the social scientists who
+conducted the survey and had performed some preliminary
+statistical  analyses  of  the  data.   The  resulting  transition
+probability function included 6 non-zero links from actions
