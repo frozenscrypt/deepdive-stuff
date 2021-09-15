@@ -1,0 +1,1 @@
+{"dir_path":"User Identification From Walking Activity/User Identification From Walking Activity/","train_path":"./train.csv","test_path":"./test.csv","scaler_path":"./scaler.pkl","model_path":"./model","plot_path":"./","n_classes":22,"n_steps":7,"test_size":0.1,"lstm_dim":150,"n_epochs":100}
